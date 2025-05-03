@@ -71,13 +71,15 @@ def trip_create_getlist(request):
     elif request.method == 'GET':   #all trips list
         user = request.user
         trips = Trip.objects.filter(user=user)
-        serializers = []
+        all_data = []
         for trip in trips:
             serializer = TripsSerializer(trip)
-            data = serializer.data
-            data['photo_urls'] = list(trip.photos.values_list('image_url', flat=True))
-            serializers.append(data)
-        return Response(serializers, status=status.HTTP_200_OK)
+            trip_data = serializer.data
+            photos = trip.photos.values('id', 'image_url')
+            trip_data['photo_urls'] = [{'id': thing['id'], 'url': thing['image_url']} for thing in photos]
+            all_data.append(trip_data)
+        response_data = {'trips': all_data}
+        return Response(response_data, status=status.HTTP_200_OK)
 
 @api_view(['DELETE','GET','PATCH'])
 @permission_classes([IsAuthenticated])
@@ -87,12 +89,13 @@ def trip_get_edit_delete(request,trip_id):
     except Trip.DoesNotExist:
         return Response({'message':'Trip not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'GET':    # get one exact trip
+    if request.method == 'GET':  # get one exact trip
         serializer = TripsSerializer(trip)
-        photo_urls=list(trip.photos.values_list('image_url', flat=True))
         data = serializer.data
-        data['photo_urls']=photo_urls
-        return Response(data, status.HTTP_200_OK)
+        photos = trip.photos.values('id', 'image_url')
+        data['photo_urls'] = [{'id': thing['id'], 'url': thing['image_url']} for thing in photos]
+        return Response(data, status=status.HTTP_200_OK)
+
     elif request.method == 'DELETE':    # delete exact trip
         if trip.user.id == request.user.id:
             trip.delete()
@@ -131,16 +134,16 @@ def share_public_profile(request, email):
     if user.profile.is_public is False:
         return Response({'message':'Account is not public'}, status=status.HTTP_403_FORBIDDEN)
 
-
     trips = Trip.objects.filter(user=user)
-    serializers = []
+    all_data = []
     for trip in trips:
         serializer = TripsSerializer(trip)
-        data = serializer.data
-        data['photo_urls'] = list(trip.photos.values_list('image_url', flat=True))
-        serializers.append(data)
-    serializers.append({'username': user.username})
-    return Response(serializers, status=status.HTTP_200_OK)
+        trip_data = serializer.data
+        photos = trip.photos.values('id', 'image_url')
+        trip_data['photo_urls'] = [{'id': thing['id'], 'url': thing['image_url']} for thing in photos]
+        all_data.append(trip_data)
+    response_data = {'trips': all_data, 'username': user.username}
+    return Response(response_data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def share_private_profile(request, private_share_token):
@@ -152,14 +155,15 @@ def share_private_profile(request, private_share_token):
         return Response({'message':'Token is expired'}, status=status.HTTP_403_FORBIDDEN)
     user = user_profile.user
     trips = Trip.objects.filter(user=user)
-    serializers = []
+    all_data = []
     for trip in trips:
         serializer = TripsSerializer(trip)
-        data = serializer.data
-        data['photo_urls'] = list(trip.photos.values_list('image_url', flat=True))
-        serializers.append(data)
-    serializers.append({'username': user.username})
-    return Response(serializers, status=status.HTTP_200_OK)
+        trip_data = serializer.data
+        photos = trip.photos.values('id', 'image_url')
+        trip_data['photo_urls'] = [{'id': thing['id'], 'url': thing['image_url']} for thing in photos]
+        all_data.append(trip_data)
+    response_data = {'trips': all_data, 'username': user.username}
+    return Response(response_data, status=status.HTTP_200_OK)
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def change_publicity(request):
