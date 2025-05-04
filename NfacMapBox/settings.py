@@ -119,7 +119,7 @@ DEFAULT_ACL = "public-read"
 DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get("DATABASE_URL"),
-        conn_max_age=600,
+        conn_max_age=50,
         ssl_require=True
     )
 }

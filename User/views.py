@@ -257,8 +257,6 @@ def autocomplete(request):
     suggestions = []
     for result in results:
         address=result.get("display_name","")
-        lat=result.get("lat",None)
-        lon=result.get("lon",None)
-        suggestions.append({"label":address,"lat":lat,"lon":lon})
+        suggestions.append({"label":address})
     return Response(suggestions)
 
