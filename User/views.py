@@ -259,4 +259,21 @@ def autocomplete(request):
         address=result.get("display_name","")
         suggestions.append({"label":address})
     return Response(suggestions)
+@api_view(['GET'])
+def autocomplete_lat_long(request):
+    query = request.GET.get('q')
+    if not query or query is None:
+        return Response([])
+    nominatim_url="https://nominatim.openstreetmap.org/search"
+    params={"q": query, "format": "json","addressdetails": 1,"limit":5}
+    headers={"User-Agent":"NfacMapBox/1.0"}
+    response = requests.get(nominatim_url, params=params, headers=headers)
+    results = response.json()
+    suggestions = []
+    for result in results:
+        address=result.get("display_name","")
+        lat = result.get("lat","")
+        long = result.get("lon","")
+        suggestions.append({"label":address, "lat":lat, "long":long})
+    return Response(suggestions)
 
