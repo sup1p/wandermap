@@ -1,5 +1,6 @@
 # WanderMap Backend -
 website: https://wandermap-front-phi.vercel.app/
+frontend repo: https://github.com/sup1p/wandermap-front
 
 ## PROJECT OVERVIEW
 WanderMap is a backend service where users after registration can see the map, add and manage their travel history. Trips are displayed from oldest to newest and in the map, with photo previews, and users can control profile visibility by setting their access policy (e.g., public or "honored-only" access). 
@@ -46,6 +47,8 @@ python manage.py runserver
   - Image upload system with external **Supabase S3** bucket
   - Public and private profile access with hashed token links
   - Integration with **Nominatim API** for place autocomplete
+  - Getting latitude and longitude from nominatim, so frontend can save coordinates.
+  - Latitude and longitude are automatically filled up when user used our suggestion system via nominatim.
 
 ---
 
